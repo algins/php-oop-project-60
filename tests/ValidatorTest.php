@@ -67,4 +67,26 @@ class ValidatorTest extends TestCase
         $schema6 = $this->validator->number()->range(-5, 5)->range(-5, 10);
         $this->assertTrue($schema6->isValid(10));
     }
+
+    public function testArray(): void
+    {
+        $schema1 = $this->validator->array();
+        $schema2 = $this->validator->array();
+        $this->assertNotSame($schema1, $schema2);
+        $this->assertTrue($schema2->isValid(['hexlet']));
+        $this->assertTrue($schema2->isValid([]));
+        $this->assertTrue($schema2->isValid(null));
+
+        $schema3 = $this->validator->array()->required();
+        $this->assertTrue($schema3->isValid(['hexlet']));
+        $this->assertTrue($schema3->isValid([]));
+        $this->assertFalse($schema3->isValid(null));
+
+        $schema4 = $this->validator->array()->sizeof(2);
+        $this->assertTrue($schema4->isValid(['hexlet', 'code-basics']));
+        $this->assertFalse($schema4->isValid(['hexlet']));
+
+        $schema5 = $this->validator->array()->sizeof(2)->sizeof(1);
+        $this->assertTrue($schema5->isValid(['hexlet']));
+    }
 }
