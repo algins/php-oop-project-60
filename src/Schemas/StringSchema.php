@@ -4,24 +4,14 @@ namespace Hexlet\Validator\Schemas;
 
 class StringSchema
 {
-    private bool $required = false;
-    private int $minLength = 0;
-    private string $contains = '';
+    private array $rules = [];
 
-    public function isValid(?string $nullableString): bool
+    public function isValid(?string $value): bool
     {
-        $string = $nullableString ?? '';
-
-        if (!$string && $this->required) {
-            return false;
-        }
-
-        if (mb_strlen($string) < $this->minLength) {
-            return false;
-        }
-
-        if (!str_contains($string, $this->contains)) {
-            return false;
+        foreach ($this->rules as $rule) {
+            if (!$rule($value)) {
+                return false;
+            }
         }
 
         return true;
@@ -29,21 +19,21 @@ class StringSchema
 
     public function required(): self
     {
-        $this->required = true;
+        $this->rules['required'] = fn ($value) => !empty($value);
 
         return $this;
     }
 
     public function minLength(int $minLength): self
     {
-        $this->minLength = $minLength;
+        $this->rules['minLength'] = fn ($value) => mb_strlen($value) >= $minLength;
 
         return $this;
     }
 
-    public function contains(string $contains): self
+    public function contains(string $subString): self
     {
-        $this->contains = $contains;
+        $this->rules['contains'] = fn ($value) => str_contains($value, $subString);
 
         return $this;
     }

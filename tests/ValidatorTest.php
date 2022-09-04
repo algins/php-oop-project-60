@@ -7,35 +7,64 @@ use Hexlet\Validator\Validator;
 
 class ValidatorTest extends TestCase
 {
+    private Validator $validator;
+
+    protected function setUp(): void
+    {
+        $this->validator = new Validator();
+    }
+
     public function testString(): void
     {
-        $validator = new Validator();
-        $schema1 = $validator->string();
-        $schema2 = $validator->string();
-        $schema3 = $validator->string()->required();
-        $schema4 = $validator->string()->minLength(10);
-        $schema5 = $validator->string()->contains('what');
-        $schema6 = $validator->string()->minLength(10)->minLength(5);
-        $schema7 = $validator->string()->contains('what')->contains('');
-
+        $schema1 = $this->validator->string();
+        $schema2 = $this->validator->string();
         $this->assertNotSame($schema1, $schema2);
+        $this->assertTrue($schema2->isValid('what does the fox say'));
+        $this->assertTrue($schema2->isValid(''));
+        $this->assertTrue($schema2->isValid(null));
 
-        $this->assertTrue($schema1->isValid('what does the fox say'));
-        $this->assertTrue($schema1->isValid(''));
-        $this->assertTrue($schema1->isValid(null));
-
+        $schema3 = $this->validator->string()->required();
         $this->assertTrue($schema3->isValid('what does the fox say'));
         $this->assertFalse($schema3->isValid(''));
         $this->assertFalse($schema3->isValid(null));
 
+        $schema4 = $this->validator->string()->minLength(10);
         $this->assertTrue($schema4->isValid('what does the fox say'));
         $this->assertFalse($schema4->isValid('hexlet'));
 
-        $this->assertTrue($schema5->isValid('what does the fox say'));
-        $this->assertFalse($schema5->isValid('hexlet'));
+        $schema5 = $this->validator->string()->minLength(10)->minLength(5);
+        $this->assertTrue($schema5->isValid('hexlet'));
 
-        $this->assertTrue($schema6->isValid('hexlet'));
+        $schema6 = $this->validator->string()->contains('what');
+        $this->assertTrue($schema6->isValid('what does the fox say'));
+        $this->assertFalse($schema6->isValid('hexlet'));
 
+        $schema7 = $this->validator->string()->contains('what')->contains('');
         $this->assertTrue($schema7->isValid('hexlet'));
+    }
+
+    public function testNumber(): void
+    {
+        $schema1 = $this->validator->number();
+        $schema2 = $this->validator->number();
+        $this->assertNotSame($schema1, $schema2);
+        $this->assertTrue($schema2->isValid(7));
+        $this->assertTrue($schema2->isValid(null));
+
+        $schema3 = $this->validator->number()->required();
+        $this->assertTrue($schema3->isValid(7));
+        $this->assertFalse($schema3->isValid(null));
+
+        $schema4 = $this->validator->number()->positive();
+        $this->assertTrue($schema4->isValid(10));
+        $this->assertFalse($schema4->isValid(-3));
+
+        $schema5 = $this->validator->number()->range(-5, 5);
+        $this->assertTrue($schema5->isValid(5));
+        $this->assertTrue($schema5->isValid(-5));
+        $this->assertFalse($schema5->isValid(10));
+
+        $schema6 = $this->validator->number()->range(-5, 5)->range(-5, 10);
+        $this->assertTrue($schema6->isValid(10));
     }
 }
