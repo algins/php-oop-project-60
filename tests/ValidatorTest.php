@@ -88,5 +88,14 @@ class ValidatorTest extends TestCase
 
         $schema5 = $this->validator->array()->sizeof(2)->sizeof(1);
         $this->assertTrue($schema5->isValid(['hexlet']));
+
+        $schema6 = $this->validator->array()->shape([
+            'name' => $this->validator->string()->required(),
+            'age' => $this->validator->number()->positive(),
+        ]);
+
+        $this->assertTrue($schema6->isValid(['name' => 'joe', 'age' => 100]));
+        $this->assertFalse($schema6->isValid(['name' => '', 'age' => 100]));
+        $this->assertFalse($schema6->isValid(['name' => 'joe', 'age' => -5]));
     }
 }
